@@ -1,27 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import {createUserWithEmailAndPassword, getAuth} from 'firebase/auth'
 import app from '../firebase/firebase.config';
 
 const Register = () => {
+    const [registerError, setRegisterError] = useState('')
+
     const auth = getAuth(app)
     
 
     const handleRegister = (event) =>{
+        setRegisterError('')
         event.preventDefault();
         const email = event.target.email.value;
         const pass = event.target.password.value;
         console.log(email, pass);
+
+        // Validation 
+
+        if(!/(?=.*[A-Z])/.test(pass)){
+            setRegisterError('Please Use At Least One Upper Case')
+            return;
+        }
+        else if(!/(?=.*?[0-9])/.test(pass)){
+            setRegisterError('Please Use At Least one NUmber')
+            return;
+        }
 
 
         createUserWithEmailAndPassword(auth, email, pass)
         .then(result =>{
             const logedUser = result.user;
             console.log(logedUser);
+            event.target.reset();
         })
         .catch(error => {
             console.log('Error', error.message);
+            setRegisterError(error.message)
         })
     }
 
@@ -49,6 +65,7 @@ const Register = () => {
                 <Button variant="primary" type="submit">
                     Submit
                 </Button>
+                <p className='text-danger'>{registerError}</p>
             </Form>
         </div>
     );
